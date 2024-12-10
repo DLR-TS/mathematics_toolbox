@@ -31,7 +31,7 @@ project. The build target does the following:
 (if it exists)
 2. builds the docker context for example builds eigne3:latest only if it does
    exist after step 1 
-3. Saves the docker layers and image to a local cache in /var/tmp
+3. Saves the docker layers and image to a local cache in ./.docker_cache
 
 To explicitly build a given project for example eigen3 you must explicitly call
 the provided `make build_<project name>` target for example:
