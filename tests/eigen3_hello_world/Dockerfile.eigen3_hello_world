@@ -1,0 +1,26 @@
+
+FROM eigen3:latest as eigen3 
+
+FROM ubuntu:22.04 as eigen3_hello_world
+
+
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y g++ make cmake git
+
+RUN mkdir -p /tmp/eigen3_hello_world
+WORKDIR /tmp/eigen3_hello_world
+COPY . . 
+
+
+COPY --from=eigen3 /tmp/eigen3 /tmp/eigen3 
+WORKDIR /tmp/eigen3/build
+RUN make install
+
+
+
+WORKDIR /tmp/eigen3_hello_world
+RUN mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    make

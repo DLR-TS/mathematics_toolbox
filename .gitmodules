@@ -1,0 +1,10 @@
+[submodule "osqp"]
+    path = osqp
+    url = https://github.com/osqp/osqp.git
+    ignore = dirty
+    shallow = true
+[submodule "eigen"]
+    path = eigen
+    url = https://github.com/libigl/eigen.git
+    ignore = dirty
+    shallow = true

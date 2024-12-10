@@ -1,0 +1,27 @@
+
+
+FROM osqp:latest as osqp 
+
+FROM ubuntu:22.04 as osqp_hello_world
+
+
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y g++ make cmake git
+
+RUN mkdir -p /tmp/osqp_hello_world
+WORKDIR /tmp/osqp_hello_world
+COPY . . 
+
+
+COPY --from=osqp /tmp/osqp /tmp/osqp 
+WORKDIR /tmp/osqp/build
+RUN make install/fast
+
+
+
+WORKDIR /tmp/osqp_hello_world
+RUN mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    make
