@@ -10,18 +10,23 @@ ROOT_DIR:=$(shell dirname "$(realpath $(firstword $(MAKEFILE_LIST)))")
 .EXPORT_ALL_VARIABLES:
 DOCKER_BUILDKIT?=1
 DOCKER_CONFIG?=
+ARCH := $(shell uname -m)
 
 OSQP_PROJECT=osqp
-OSQP_TAG=latest
+OSQP_TAG=latest_${ARCH}
 OSQP_IMAGE=${OSQP_PROJECT}:${OSQP_TAG}
 
 EIGEN_PROJECT=eigen3
-EIGEN_TAG=latest
+EIGEN_TAG=latest_${ARCH}
 EIGEN_IMAGE=${EIGEN_PROJECT}:${EIGEN_TAG}
 
 DOCKER_REPOSITORY="andrewkoerner/adore"
 DOCKER_CACHE_DIRECTORY="${ROOT_DIR}/.docker_cache"
 DOCKER_ARCHIVE="${DOCKER_CACHE_DIRECTORY}/mathematics_toolbox.tar"
+
+
+
+
 
 .PHONY: help
 help:
@@ -129,13 +134,13 @@ docker_publish: save_docker_images
 	
 .PHONY: docker_pull
 docker_pull:
-	docker pull "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}"
-	docker tag "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" "${OSQP_IMAGE}"
-	docker rmi "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}"
+	docker pull "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" || true
+	docker tag "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" "${OSQP_IMAGE}" || true
+	docker rmi "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" || true
 	
-	docker pull "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}"
-	docker tag "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" "${EIGEN_IMAGE}"
-	docker rmi "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}"
+	docker pull "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" || true
+	docker tag "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" "${EIGEN_IMAGE}" || true
+	docker rmi "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" || true
 
 .PHONY: docker_pull_fast
 docker_pull_fast:
