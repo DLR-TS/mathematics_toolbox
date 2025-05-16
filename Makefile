@@ -2,15 +2,14 @@ SHELL:=/bin/bash
 
 .DEFAULT_GOAL := help 
 
-
-MAKEFLAGS += --no-print-directory
-
 ROOT_DIR:=$(shell dirname "$(realpath $(firstword $(MAKEFILE_LIST)))")
 
 .EXPORT_ALL_VARIABLES:
 DOCKER_BUILDKIT?=1
 DOCKER_CONFIG?=
-ARCH := $(shell uname -m)
+ARCH?=$(shell uname -m)
+DOCKER_PLATFORM?=linux/$(ARCH)
+CROSS_COMPILE?=$(shell if [ "$(shell uname -m)" != "$(ARCH)" ]; then echo "true"; else echo "false"; fi)
 
 OSQP_PROJECT=osqp
 OSQP_TAG=latest_${ARCH}
@@ -32,6 +31,20 @@ DOCKER_ARCHIVE="${DOCKER_CACHE_DIRECTORY}/mathematics_toolbox.tar"
 help:
 	@printf "Usage: make \033[36m<target>\033[0m\n%s\n" "$$(awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) }' $(MAKEFILE_LIST) | sort | uniq)"
 
+
+.PHONY: check_cross_compile_deps
+check_cross_compile_deps:
+	@if [ "$(CROSS_COMPILE)" = "true" ]; then \
+        echo "Cross-compiling for $(ARCH) on $(shell uname -m)"; \
+        if ! which qemu-$(ARCH)-static >/dev/null || ! docker buildx inspect $(ARCH)builder >/dev/null 2>&1; then \
+            echo "Installing cross-compilation dependencies..."; \
+            sudo apt-get update && sudo apt-get install -y qemu qemu-user-static binfmt-support; \
+            docker run --privileged --rm tonistiigi/binfmt --install $(ARCH); \
+            if ! docker buildx inspect $(ARCH)builder >/dev/null 2>&1; then \
+                docker buildx create --name $(ARCH)builder --driver docker-container --use; \
+            fi; \
+        fi; \
+    fi
 
 .PHONY: build
 build: all ## 1) Loads the docker images from the DOCKER_ARCHIVE directory, 2) Fetches the docker images from docker.io, 3) Builds from scratch if neither are available.  Invoke `make clean_build` to trigger a build. 
@@ -103,11 +116,19 @@ clean_build: clean ## Build all dependencies from scratch
 	make build_eigen3
 
 .PHONY: _build
-_build:
+_build: check_cross_compile_deps
 	rm -rf ${PROJECT}/build
-	docker build --network host \
-                 --tag ${PROJECT}:${TAG} \
-                 --build-arg PROJECT=${PROJECT} .
+	@if [ "$(CROSS_COMPILE)" = "true" ]; then \
+        echo "Cross-compiling ${PROJECT}:${TAG} for $(ARCH)..."; \
+        docker buildx build --platform $(DOCKER_PLATFORM) \
+                --tag ${PROJECT}:${TAG} \
+                --build-arg PROJECT=${PROJECT} \
+                --load .; \
+    else \
+        docker build --network host \
+                --tag ${PROJECT}:${TAG} \
+                --build-arg PROJECT=${PROJECT} .; \
+    fi
 	docker cp $$(docker create --rm ${PROJECT}:${TAG}):/tmp/${PROJECT}/build ${PROJECT}
 
 .PHONY: clean
