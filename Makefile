@@ -131,6 +131,10 @@ _build: check_cross_compile_deps
     fi
 	docker cp $$(docker create --rm ${PROJECT}:${TAG}):/tmp/${PROJECT}/build ${PROJECT}
 
+.PHONY: test
+test:
+	cd tests && make test_osqp && make test_eigen3
+
 .PHONY: clean
 clean: ## Clean build artifacts and docker images
 	cd "${ROOT_DIR}" && rm -rf $$(find . -name build -type d)
