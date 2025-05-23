@@ -5,6 +5,7 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -O3")
 
 
 find_package(osqp REQUIRED)
+find_package(Catch2 REQUIRED)
 
 add_executable(osqp_hello_world osqp_hello_world.cpp)
 target_compile_options(osqp_hello_world PRIVATE -fpermissive)

@@ -1,7 +1,11 @@
+#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_PRINT_EXPRESSIONS // Enable printing REQUIRE statements
+
 #include <stdlib.h>
 #include "osqp.h"
+#include <catch2/catch.hpp>
 
-int main(int argc, char **argv) {
+TEST_CASE("OSQP Test") {
     /* Load problem data */
     OSQPFloat P_x[3] = {4.0, 1.0, 2.0, };
     OSQPInt P_nnz = 3;
@@ -49,5 +53,5 @@ int main(int argc, char **argv) {
     if (P) free(P);
     if (settings) free(settings);
 
-    return (int)exitflag;
-};
+    REQUIRE(exitflag == 0);
+}

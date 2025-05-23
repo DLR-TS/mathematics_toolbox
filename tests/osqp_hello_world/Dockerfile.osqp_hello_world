@@ -1,13 +1,14 @@
 
 
-FROM osqp:latest as osqp 
+FROM osqp:latest AS osqp
 
-FROM ubuntu:22.04 as osqp_hello_world
+FROM ubuntu:22.04 AS osqp_hello_world
 
 
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y g++ make cmake git
+RUN apt-get update && apt-get install -y g++ make cmake git catch2 && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /tmp/osqp_hello_world
 WORKDIR /tmp/osqp_hello_world

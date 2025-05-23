@@ -24,7 +24,7 @@ libraries, run, include (via cmake), and install the libraries.
 By default all dependencies are fetch via docker hub
 
 ### build
-** The default behavior of the build target/recipe will not compile any dependencies **
+**The default behavior of the build target/recipe will not compile any dependencies.**
 A build target is provided that will build every library provided in this 
 project. The build target does the following:
 1. Fetches all projects from docker hub (if it exists) or from local cache 
@@ -93,15 +93,6 @@ You should now be able to include osqp in your C++ project with:
 ...
 ```
 
-This project also includes a complete example test program for osqp of 
-everything previously explained in `test/osqp_hello_world`. To run the osqp test
-program use the provided target:
-```bash
-cd tests
-make test_osqp
-```
-
-
 ### eigen
 As with the osqp library you must first build the eigen library with: 
 `make build` or `make build_eigen3`
@@ -132,6 +123,19 @@ Finally, you can include eigen in your C++ sources:
 ```
 There is a complete example test program provided in the prioject for eigen at:
 `tests/eigen3_hello_world`; refer to this.
+
+### Test
+This project also includes a complete example test program for osqp and eigen of 
+everything previously explained in `tests/osqp_hello_world` and `tests\eigen3_hello_world`. To run both test
+programs use the provided target or run the seperately:
+```bash
+make test
+
+cd tests
+make test_osqp
+make test_eigen3
+```
+
 
 ### Publishing to docker
 To build and publish a library to docker hub

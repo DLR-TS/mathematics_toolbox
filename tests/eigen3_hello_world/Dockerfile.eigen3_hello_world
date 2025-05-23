@@ -1,12 +1,13 @@
 
-FROM eigen3:latest as eigen3 
+FROM eigen3:latest AS eigen3
 
-FROM ubuntu:22.04 as eigen3_hello_world
+FROM ubuntu:22.04 AS eigen3_hello_world
 
 
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y g++ make cmake git
+RUN apt-get update && apt-get install -y g++ make cmake git catch2 && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /tmp/eigen3_hello_world
 WORKDIR /tmp/eigen3_hello_world
