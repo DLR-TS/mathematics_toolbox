@@ -74,8 +74,8 @@ load_docker_images:
 
 .PHONY: build_osqp
 build_osqp: init_submodules set_osqp_env _build
-set_osqp_env: 
-	$(eval PROJECT := ${OSQP_PROJECT}) 
+set_osqp_env:
+	$(eval PROJECT := ${OSQP_PROJECT})
 	$(eval TAG := ${OSQP_TAG})
 .PHONY: build_fast_osqp
 build_fast_osqp: set_osqp_env
@@ -88,8 +88,8 @@ build_fast_osqp: set_osqp_env
 
 .PHONY: build_eigen3
 build_eigen3: init_submodules set_eigen3_env _build
-set_eigen3_env: 
-	$(eval PROJECT := ${EIGEN_PROJECT}) 
+set_eigen3_env:
+	$(eval PROJECT := ${EIGEN_PROJECT})
 	$(eval TAG := ${EIGEN_TAG})
 .PHONY: build_fast_eigen3
 build_fast_eigen3: set_eigen3_env
@@ -108,7 +108,7 @@ all:
 	make build_fast_eigen3
 	make save_docker_images
 
-.PHONY: clean_build 
+.PHONY: clean_build
 clean_build: clean ## Build all dependencies from scratch
 	git submodule update --init --recursive
 	rm -rf ${DOCKER_CACHE_DIRECTORY}
@@ -132,7 +132,7 @@ _build: check_cross_compile_deps
 	docker cp $$(docker create --rm ${PROJECT}:${TAG}):/tmp/${PROJECT}/build ${PROJECT}
 
 .PHONY: test
-test:
+test: ## Test the osqp and eigen library with a smoke test
 	cd tests && make test_osqp && make test_eigen3
 
 .PHONY: clean
@@ -141,7 +141,7 @@ clean: ## Clean build artifacts and docker images
 	docker rm $$(docker ps -a -q --filter "ancestor=${OSQP_IMAGE}") 2> /dev/null || true
 	docker rmi $$(docker images -q ${OSQP_IMAGE}) 2> /dev/null || true
 	docker rm $$(docker ps -a -q --filter "ancestor=${OSQP_IMAGE}") 2> /dev/null || true
-	
+
 	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE}") 2> /dev/null || true
 	docker rmi $$(docker images -q ${EIGEN_IMAGE}) 2> /dev/null || true
 	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE}") 2> /dev/null || true
@@ -153,16 +153,16 @@ publish: docker_publish ## Publish all docker images built by this project to do
 docker_publish: save_docker_images
 	docker tag "${OSQP_TAG}" "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_VERSION}"
 	docker push "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_VERSION}"
-	
+
 	docker tag "${EIGEN_TAG}" "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_VERSION}"
 	docker push "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_VERSION}"
-	
+
 .PHONY: docker_pull
 docker_pull:
 	docker pull "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" || true
 	docker tag "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" "${OSQP_IMAGE}" || true
 	docker rmi "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" || true
-	
+
 	docker pull "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" || true
 	docker tag "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" "${EIGEN_IMAGE}" || true
 	docker rmi "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" || true
