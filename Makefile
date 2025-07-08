@@ -11,15 +11,18 @@ ARCH?=$(shell uname -m)
 DOCKER_PLATFORM?=linux/$(ARCH)
 CROSS_COMPILE?=$(shell if [ "$(shell uname -m)" != "$(ARCH)" ]; then echo "true"; else echo "false"; fi)
 
+DOCKER_REPOSITORY="andrewkoerner/adore"
+
 OSQP_PROJECT=osqp
 OSQP_TAG=latest_${ARCH}
 OSQP_IMAGE=${OSQP_PROJECT}:${OSQP_TAG}
+OSQP_IMAGE_PUBLISH=${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}
 
 EIGEN_PROJECT=eigen3
 EIGEN_TAG=latest_${ARCH}
 EIGEN_IMAGE=${EIGEN_PROJECT}:${EIGEN_TAG}
+EIGEN_IMAGE_PUBLISH=${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}
 
-DOCKER_REPOSITORY="andrewkoerner/adore"
 DOCKER_CACHE_DIRECTORY="${ROOT_DIR}/.docker_cache"
 DOCKER_ARCHIVE="${DOCKER_CACHE_DIRECTORY}/mathematics_toolbox.tar"
 
@@ -137,34 +140,42 @@ clean: ## Clean build artifacts and docker images
 	docker rm $$(docker ps -a -q --filter "ancestor=${OSQP_IMAGE}") 2> /dev/null || true
 	docker rmi $$(docker images -q ${OSQP_IMAGE}) 2> /dev/null || true
 	docker rm $$(docker ps -a -q --filter "ancestor=${OSQP_IMAGE}") 2> /dev/null || true
-	
+
+	docker rm $$(docker ps -a -q --filter "ancestor=${OSQP_IMAGE_PUBLISH}") 2> /dev/null || true
+	docker rmi $$(docker images -q ${OSQP_IMAGE_PUBLISH}) 2> /dev/null || true
+	docker rm $$(docker ps -a -q --filter "ancestor=${OSQP_IMAGE_PUBLISH}") 2> /dev/null || true
+
 	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE}") 2> /dev/null || true
 	docker rmi $$(docker images -q ${EIGEN_IMAGE}) 2> /dev/null || true
 	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE}") 2> /dev/null || true
+
+	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE_PUBLISH}") 2> /dev/null || true
+	docker rmi $$(docker images -q ${EIGEN_IMAGE_PUBLISH}) 2> /dev/null || true
+	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE_PUBLISH}") 2> /dev/null || true
 
 .PHONY: publish
 publish: docker_publish ## Publish all docker images built by this project to docker hub. Must be logged in
 
 .PHONY: docker_publish
 docker_publish: save_docker_images
-	docker tag "${OSQP_TAG}" "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_VERSION}"
-	docker push "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_VERSION}"
+	docker tag "${OSQP_IMAGE}" "${OSQP_IMAGE_PUBLISH}"
+	docker push "${OSQP_IMAGE_PUBLISH}"
 	
-	docker tag "${EIGEN_TAG}" "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_VERSION}"
-	docker push "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_VERSION}"
+	docker tag "${EIGEN_IMAGE}" "${EIGEN_IMAGE_PUBLISH}"
+	docker push "${EIGEN_IMAGE_PUBLISH}"
 	
 .PHONY: docker_pull
 docker_pull:
-	docker pull "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" || true
-	docker tag "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" "${OSQP_IMAGE}" || true
-	docker rmi "${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}" || true
+	docker pull "${OSQP_IMAGE_PUBLISH}" || true
+	docker tag "${OSQP_IMAGE_PUBLISH}" "${OSQP_IMAGE}" || true
+	docker rmi "${OSQP_IMAGE_PUBLISH}" || true
 	
-	docker pull "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" || true
-	docker tag "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" "${EIGEN_IMAGE}" || true
-	docker rmi "${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}" || true
+	docker pull "${EIGEN_IMAGE_PUBLISH}" || true
+	docker tag "${EIGEN_IMAGE_PUBLISH}" "${EIGEN_IMAGE}" || true
+	docker rmi "${EIGEN_IMAGE_PUBLISH}" || true
 
 .PHONY: docker_pull_fast
 docker_pull_fast:
-	@[ -n "$$(docker images -q ${EIGEN_IMAGE})" ] || make docker_pull
+	@[ -n "$$(docker images -q ${OSQP_IMAGE})" ] || make docker_pull
 	@[ -n "$$(docker images -q ${EIGEN_IMAGE})" ] || make docker_pull
 
