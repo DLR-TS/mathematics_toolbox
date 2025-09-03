@@ -13,13 +13,15 @@ CROSS_COMPILE?=$(shell if [ "$(shell uname -m)" != "$(ARCH)" ]; then echo "true"
 
 DOCKER_REPOSITORY="ghcr.io/dlr-ts/mathematics_toolbox"
 
+SHORT_HASH:=$(shell git rev-parse --short HEAD)
+
 OSQP_PROJECT=osqp
-OSQP_TAG=latest_${ARCH}
+OSQP_TAG=${SHORT_HASH}_${ARCH}
 OSQP_IMAGE=${OSQP_PROJECT}:${OSQP_TAG}
 OSQP_IMAGE_PUBLISH=${DOCKER_REPOSITORY}:${OSQP_PROJECT}_${OSQP_TAG}
 
 EIGEN_PROJECT=eigen3
-EIGEN_TAG=latest_${ARCH}
+EIGEN_TAG=${SHORT_HASH}_${ARCH}
 EIGEN_IMAGE=${EIGEN_PROJECT}:${EIGEN_TAG}
 EIGEN_IMAGE_PUBLISH=${DOCKER_REPOSITORY}:${EIGEN_PROJECT}_${EIGEN_TAG}
 
@@ -163,7 +165,10 @@ docker_publish: save_docker_images
 	
 	docker tag "${EIGEN_IMAGE}" "${EIGEN_IMAGE_PUBLISH}"
 	docker push "${EIGEN_IMAGE_PUBLISH}"
-	
+
+.PHONY: pull
+pull: docker_pull
+
 .PHONY: docker_pull
 docker_pull:
 	docker pull "${OSQP_IMAGE_PUBLISH}" || true
