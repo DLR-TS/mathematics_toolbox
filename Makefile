@@ -11,7 +11,7 @@ ARCH?=$(shell uname -m)
 DOCKER_PLATFORM?=linux/$(ARCH)
 CROSS_COMPILE?=$(shell if [ "$(shell uname -m)" != "$(ARCH)" ]; then echo "true"; else echo "false"; fi)
 
-DOCKER_REPOSITORY="andrewkoerner/adore"
+DOCKER_REPOSITORY="ghcr.io/dlr-ts/mathematics_toolbox"
 
 OSQP_PROJECT=osqp
 OSQP_TAG=latest_${ARCH}
