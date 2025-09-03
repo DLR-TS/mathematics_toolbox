@@ -1,4 +1,4 @@
-name: ADORe Reusable Workflow
+name: Mathematics Toolbox Reusable Workflow
 
 on:
   workflow_call:

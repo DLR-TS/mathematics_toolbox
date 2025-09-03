@@ -1,4 +1,4 @@
-name: ADORe CI
+name: Mathematics toolbox CI
 
 on:
   push:
@@ -43,28 +43,3 @@ jobs:
       platform: 'ubuntu-24.04-arm'
       archive_name: 'arm64'
       image_platform: 'arm64'
-
-  image_manifest:
-    name: Image Manifest
-    runs-on: ubuntu-latest
-    needs: [ x86_64, arm64 ]
-
-    permissions:
-      contents: read
-      packages: write
-
-    # Only create a release on a push, not for other events
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push image
-        shell: bash
-        run: |
-          make push 
