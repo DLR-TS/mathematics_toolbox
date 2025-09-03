@@ -64,6 +64,6 @@ jobs:
       - name: Push docker images
         shell: bash
         run: |
-          make publish
+          make push
 
 

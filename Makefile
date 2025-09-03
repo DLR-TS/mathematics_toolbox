@@ -11,7 +11,7 @@ ARCH?=$(shell uname -m)
 DOCKER_PLATFORM?=linux/$(ARCH)
 CROSS_COMPILE?=$(shell if [ "$(shell uname -m)" != "$(ARCH)" ]; then echo "true"; else echo "false"; fi)
 
-DOCKER_REPOSITORY="ghcr.io/dlr-ts/mathematics_toolbox"
+DOCKER_REPOSITORY:="ghcr.io/dlr-ts/mathematics_toolbox"
 
 SHORT_HASH:=$(shell git rev-parse --short HEAD)
 
@@ -155,11 +155,11 @@ clean: ## Clean build artifacts and docker images
 	docker rmi $$(docker images -q ${EIGEN_IMAGE_PUBLISH}) 2> /dev/null || true
 	docker rm $$(docker ps -a -q --filter "ancestor=${EIGEN_IMAGE_PUBLISH}") 2> /dev/null || true
 
-.PHONY: publish
-publish: docker_publish ## Publish all docker images built by this project to docker hub. Must be logged in
+.PHONY: push
+push: docker_push
 
-.PHONY: docker_publish
-docker_publish: save_docker_images
+.PHONY: docker_push
+docker_push: save_docker_images
 	docker tag "${OSQP_IMAGE}" "${OSQP_IMAGE_PUBLISH}"
 	docker push "${OSQP_IMAGE_PUBLISH}"
 	
