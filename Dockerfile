@@ -53,8 +53,7 @@ RUN cpack -G DEB && find . -type f -name "*.deb" | xargs mv -t . || true
 
 RUN mv CMakeCache.txt CMakeCache.txt.build
 
-FROM alpine:3.14
-FROM debian:stable-slim
+FROM alpine:3.22
 
 ARG PROJECT
 
