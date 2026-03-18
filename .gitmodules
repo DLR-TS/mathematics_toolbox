@@ -8,3 +8,6 @@
     url = https://github.com/PX4/eigen.git
     ignore = dirty
     shallow = true
+[submodule "osqp-eigen"]
+	path = osqp-eigen
+	url = https://github.com/robotology/osqp-eigen.git
